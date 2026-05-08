@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"src/app/admin/queue/[id]\" \"src/app/admin/clients/[id]\")",
+      "Bash(cp \"src/app/\\(admin\\)/queue/[id]/page.tsx\" \"src/app/admin/queue/[id]/page.tsx\")",
+      "Bash(cp \"src/app/\\(admin\\)/clients/[id]/page.tsx\" \"src/app/admin/clients/[id]/page.tsx\")",
+      "Bash(cp \"src/app/\\(admin\\)/clients/[id]/ClientEditor.tsx\" \"src/app/admin/clients/[id]/ClientEditor.tsx\")",
+      "Bash(npm install *)"
+    ]
+  }
+}
