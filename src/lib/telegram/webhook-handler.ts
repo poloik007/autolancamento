@@ -44,7 +44,12 @@ export async function handleTelegramUpdate(payload: unknown) {
     if (text === '/start') {
       await handleStart(chatId, message.from)
     } else if (adminChatId && chatId === adminChatId) {
-      await handleAdminText(chatId, text)
+      const session = await getActiveSession(chatId)
+      if (session) {
+        await handleClientText(chatId, text)
+      } else {
+        await handleAdminText(chatId, text)
+      }
     } else {
       await handleClientText(chatId, text)
     }
