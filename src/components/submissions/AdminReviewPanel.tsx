@@ -44,6 +44,10 @@ export function AdminReviewPanel({ submissionId, initialTransactions }: AdminRev
       is_edited: true,
       sort_order: prev.length,
       created_at: new Date().toISOString(),
+      holder_name: null,
+      account_number: null,
+      beneficiary: null,
+      transaction_time: null,
     }])
   }
 

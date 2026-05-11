@@ -106,7 +106,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
     return
   }
 
-  const company = access.companies as { name: string } | null
+  const company = access.companies as unknown as { name: string } | null
 
   await sendTelegram(chatId, '⏳ Processando seu extrato...')
 
@@ -223,7 +223,7 @@ async function handleClientText(chatId: string, message: string) {
       .eq('id', session.submission_id)
       .single()
 
-    const company = sub?.companies as { name: string } | null
+    const company = sub?.companies as unknown as { name: string } | null
     const sid = shortId(session.submission_id)
     const msg = `📄 Nova submissão via Telegram\n🏢 ${company?.name ?? ''}\n📎 ${sub?.pdf_filename ?? ''}\n\nAprovar: \`aprovar ${sid}\`\nRejeitar: \`rejeitar ${sid}: motivo\``
 
@@ -289,7 +289,7 @@ async function handleAdminText(chatId: string, message: string) {
       .eq('submission_id', submission.id)
       .order('sort_order')
 
-    const company = submission.companies as { name: string; tr_company_id: string } | null
+    const company = submission.companies as unknown as { name: string; tr_company_id: string } | null
     let trSuccess = false
     let trReferenceId: string | undefined
 

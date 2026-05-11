@@ -8,11 +8,12 @@ import { SubmissionStatusBadge } from './SubmissionStatusBadge'
 import { DeleteDraftButton } from './DeleteDraftButton'
 import { formatDateTime } from '@/lib/utils/format'
 import { useDebounce } from '@/hooks/useDebounce'
+import type { SubmissionStatus } from '@/types/database'
 
 interface Submission {
   id: string
   pdf_filename: string
-  status: string
+  status: SubmissionStatus
   created_at: string
   companies: { name: string } | null
 }
