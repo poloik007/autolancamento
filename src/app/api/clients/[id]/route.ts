@@ -8,6 +8,7 @@ import type { DbUser } from '@/types/database'
 const schema = z.object({
   is_active: z.boolean().optional(),
   notes: z.string().max(2000).optional(),
+  telegram_chat_id: z.string().max(50).nullable().optional(),
 })
 
 export async function PATCH(

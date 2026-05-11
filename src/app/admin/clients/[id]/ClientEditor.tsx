@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +19,7 @@ interface ClientEditorProps {
 export function ClientEditor({ client, allCompanies, assignedCompanyIds }: ClientEditorProps) {
   const [isActive, setIsActive] = useState(client.is_active)
   const [notes, setNotes] = useState(client.notes ?? '')
+  const [telegramChatId, setTelegramChatId] = useState(client.telegram_chat_id ?? '')
   const [assigned, setAssigned] = useState(new Set(assignedCompanyIds))
   const [saving, setSaving] = useState(false)
 
@@ -27,7 +29,11 @@ export function ClientEditor({ client, allCompanies, assignedCompanyIds }: Clien
       const res = await fetch(`/api/clients/${client.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: isActive, notes }),
+        body: JSON.stringify({
+          is_active: isActive,
+          notes,
+          telegram_chat_id: telegramChatId.trim() || null,
+        }),
       })
       if (!res.ok) throw new Error('Erro ao salvar')
       toast.success('Perfil atualizado!')
@@ -74,6 +80,19 @@ export function ClientEditor({ client, allCompanies, assignedCompanyIds }: Clien
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${isActive ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="telegram_chat_id">Telegram Chat ID</Label>
+          <Input
+            id="telegram_chat_id"
+            value={telegramChatId}
+            onChange={(e) => setTelegramChatId(e.target.value)}
+            placeholder="Ex: 7023662501 (cliente envia /start no bot para obter)"
+          />
+          <p className="text-xs text-muted-foreground">
+            O cliente envia <span className="font-mono">/start</span> para o bot e recebe o ID dele.
+          </p>
         </div>
 
         <div className="space-y-1.5">
