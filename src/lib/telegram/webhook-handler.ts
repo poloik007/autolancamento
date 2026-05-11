@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendTelegram, sendAdminTelegram, downloadTelegramFile } from '@/lib/notifications/telegram'
 import { createNotification } from '@/lib/notifications/create'
-import { extractWithGemini } from '@/lib/pdf/extractor-gemini'
+import { extractWithOpenRouter } from '@/lib/pdf/extractor-openrouter'
 import { getTRClient } from '@/lib/thomson-reuters/client'
 import { getActiveSession, upsertSession, updateSessionState } from './session'
 
@@ -149,7 +149,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
     return
   }
 
-  const { transactions, warnings } = await extractWithGemini(pdfBuffer)
+  const { transactions, warnings } = await extractWithOpenRouter(pdfBuffer)
 
   if (transactions.length === 0) {
     const warningMsg = (warnings[0]?.message ?? 'Nenhuma transação encontrada.').replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&')
