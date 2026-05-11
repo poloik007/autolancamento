@@ -152,7 +152,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
   const { transactions, warnings } = await extractWithGemini(pdfBuffer)
 
   if (transactions.length === 0) {
-    const warningMsg = warnings[0]?.message ?? 'Nenhuma transação encontrada.'
+    const warningMsg = (warnings[0]?.message ?? 'Nenhuma transação encontrada.').replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&')
     await sendTelegram(chatId, `❌ Não consegui extrair transações.\n${warningMsg}\n\nVerifique o arquivo e tente novamente.`)
     await admin.from('submissions').delete().eq('id', submission.id)
     await admin.storage.from('submissions').remove([storagePath])
