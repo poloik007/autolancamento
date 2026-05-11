@@ -130,7 +130,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
     return
   }
 
-  const { data: submission } = await admin
+  const { data: submission, error: submissionError } = await admin
     .from('submissions')
     .insert({
       user_id: user.id,
@@ -144,6 +144,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
     .single()
 
   if (!submission) {
+    console.error('[submissions] insert error:', JSON.stringify(submissionError))
     await sendTelegram(chatId, 'Erro ao criar submissão. Tente novamente.')
     return
   }
