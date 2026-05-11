@@ -35,7 +35,7 @@ export async function POST(
   const admin = createAdminClient()
   const { data: submission } = await admin
     .from('submissions')
-    .select('*, companies(name, tr_company_id), users(email, full_name)')
+    .select('*, companies(name, tr_company_id), users!submissions_user_id_fkey(email, full_name)')
     .eq('id', id)
     .single()
 
@@ -101,7 +101,7 @@ export async function POST(
     console.error('[TR] sendStatement failed:', err)
   }
 
-  const newStatus = trSuccess ? 'sent_to_tr' : 'approved'
+  const newStatus = trSuccess ? 'sent_to_tr' : 'tr_failed'
   await admin.from('submissions').update({
     status: newStatus,
     reviewed_by: user.id,

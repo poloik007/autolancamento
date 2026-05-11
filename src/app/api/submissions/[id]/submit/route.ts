@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
-import { sendWhatsApp } from '@/lib/notifications/whatsapp'
+import { sendAdminTelegram } from '@/lib/notifications/telegram'
 import { createNotification } from '@/lib/notifications/create'
 
 const transactionSchema = z.object({
@@ -100,7 +100,7 @@ export async function POST(
   }
 
   // WhatsApp notification to admin
-  await sendWhatsApp(message).catch(() => null)
+  await sendAdminTelegram(message).catch(() => null)
 
   // Audit log
   await admin.from('audit_log').insert({

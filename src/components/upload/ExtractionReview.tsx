@@ -62,12 +62,16 @@ export function ExtractionReview({
         </div>
       )}
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="rounded-lg border bg-white overflow-x-auto w-full">
+        <table className="w-full min-w-max text-sm">
           <thead>
             <tr className="border-b bg-gray-50 text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium w-32">Data</th>
+              <th className="px-3 py-2 text-left font-medium w-24">Hora</th>
               <th className="px-3 py-2 text-left font-medium">Descrição</th>
+              <th className="px-3 py-2 text-left font-medium">Titular</th>
+              <th className="px-3 py-2 text-left font-medium">Conta</th>
+              <th className="px-3 py-2 text-left font-medium">Beneficiário</th>
               <th className="px-3 py-2 text-left font-medium w-28">Valor (R$)</th>
               <th className="px-3 py-2 text-left font-medium w-28">Tipo</th>
               <th className="px-3 py-2 w-10" />
@@ -87,8 +91,41 @@ export function ExtractionReview({
                 </td>
                 <td className="px-2 py-1.5">
                   <Input
+                    value={row.transactionTime ?? ''}
+                    onChange={(e) => update(i, 'transactionTime', e.target.value)}
+                    placeholder="HH:MM:SS"
+                    className="h-7 text-xs"
+                    disabled={submitting}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input
                     value={row.description}
                     onChange={(e) => update(i, 'description', e.target.value)}
+                    className="h-7 text-xs"
+                    disabled={submitting}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input
+                    value={row.holderName ?? ''}
+                    onChange={(e) => update(i, 'holderName', e.target.value)}
+                    className="h-7 text-xs"
+                    disabled={submitting}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input
+                    value={row.accountNumber ?? ''}
+                    onChange={(e) => update(i, 'accountNumber', e.target.value)}
+                    className="h-7 text-xs"
+                    disabled={submitting}
+                  />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input
+                    value={row.beneficiary ?? ''}
+                    onChange={(e) => update(i, 'beneficiary', e.target.value)}
                     className="h-7 text-xs"
                     disabled={submitting}
                   />

@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { detectPdfType } from '@/lib/pdf/detector'
-import { extractDigital } from '@/lib/pdf/extractor-digital'
-import { extractOcr } from '@/lib/pdf/extractor-ocr'
+import { extractWithGemini } from '@/lib/pdf/extractor-gemini'
 import { z } from 'zod'
 
 export const maxDuration = 60
@@ -21,7 +19,6 @@ export async function POST(request: Request) {
 
   const { submissionId } = parsed.data
 
-  // Verify ownership
   const { data: submission } = await supabase
     .from('submissions')
     .select('id, pdf_path, status, user_id')
@@ -34,7 +31,6 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  // Download PDF from storage
   const { data: fileData, error: downloadError } = await admin.storage
     .from('submissions')
     .download(submission.pdf_path)
@@ -44,25 +40,7 @@ export async function POST(request: Request) {
   }
 
   const buffer = Buffer.from(await fileData.arrayBuffer())
-  const pdfType = await detectPdfType(buffer)
-
-  let transactions: import('@/types/submission').StandardTransaction[]
-  let warnings: import('@/types/submission').ExtractionWarning[]
-
-  if (pdfType === 'digital') {
-    transactions = await extractDigital(buffer)
-    warnings = []
-  } else {
-    const result = await extractOcr(buffer)
-    transactions = result.transactions
-    warnings = result.warnings
-  }
-
-  // Persist pdf_type
-  await admin
-    .from('submissions')
-    .update({ pdf_type: pdfType })
-    .eq('id', submissionId)
+  const { transactions, warnings, pdfType } = await extractWithGemini(buffer)
 
   return NextResponse.json({ transactions, warnings, pdfType })
 }

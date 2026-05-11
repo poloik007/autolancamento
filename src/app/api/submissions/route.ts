@@ -3,6 +3,39 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { z } from 'zod'
 
+const PAGE_SIZE = 20
+
+export async function GET(request: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { searchParams } = new URL(request.url)
+  const search = searchParams.get('search')?.trim() ?? ''
+  const date = searchParams.get('date')?.trim() ?? ''
+  const cursor = searchParams.get('cursor') ?? null
+
+  let query = supabase
+    .from('submissions')
+    .select('*, companies(name)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(PAGE_SIZE)
+
+  if (search) query = query.ilike('pdf_filename', `%${search}%`)
+  if (date) query = query.gte('created_at', `${date}T00:00:00`).lte('created_at', `${date}T23:59:59`)
+  if (cursor) query = query.lt('created_at', cursor)
+
+  const { data, error } = await query
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({
+    submissions: data ?? [],
+    hasMore: (data?.length ?? 0) === PAGE_SIZE,
+    nextCursor: data?.length ? data[data.length - 1].created_at : null,
+  })
+}
+
 const schema = z.object({
   company_id: z.string().uuid(),
   pdf_filename: z.string().min(1).max(255),

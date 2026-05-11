@@ -91,12 +91,16 @@ export function AdminReviewPanel({ submissionId, initialTransactions }: AdminRev
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border bg-white overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="rounded-lg border bg-white overflow-x-auto w-full">
+        <table className="w-full min-w-max text-sm">
           <thead>
             <tr className="border-b bg-gray-50 text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium w-32">Data</th>
+              <th className="px-3 py-2 text-left font-medium w-24">Hora</th>
               <th className="px-3 py-2 text-left font-medium">Descrição</th>
+              <th className="px-3 py-2 text-left font-medium">Titular</th>
+              <th className="px-3 py-2 text-left font-medium">Conta</th>
+              <th className="px-3 py-2 text-left font-medium">Beneficiário</th>
               <th className="px-3 py-2 text-left font-medium w-28">Valor (R$)</th>
               <th className="px-3 py-2 text-left font-medium w-28">Tipo</th>
               <th className="px-3 py-2 w-10" />
@@ -106,46 +110,34 @@ export function AdminReviewPanel({ submissionId, initialTransactions }: AdminRev
             {rows.map((row, i) => (
               <tr key={row.id} className={row.is_edited ? 'bg-blue-50' : ''}>
                 <td className="px-2 py-1.5">
-                  <Input
-                    value={row.transaction_date}
-                    onChange={(e) => updateRow(i, 'transaction_date', e.target.value)}
-                    className="h-7 text-xs"
-                    disabled={loading}
-                  />
+                  <Input value={row.transaction_date} onChange={(e) => updateRow(i, 'transaction_date', e.target.value)} className="h-7 text-xs" disabled={loading} />
                 </td>
                 <td className="px-2 py-1.5">
-                  <Input
-                    value={row.description}
-                    onChange={(e) => updateRow(i, 'description', e.target.value)}
-                    className="h-7 text-xs"
-                    disabled={loading}
-                  />
+                  <Input value={row.transaction_time ?? ''} onChange={(e) => updateRow(i, 'transaction_time', e.target.value)} placeholder="HH:MM:SS" className="h-7 text-xs" disabled={loading} />
                 </td>
                 <td className="px-2 py-1.5">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={row.amount}
-                    onChange={(e) => updateRow(i, 'amount', parseFloat(e.target.value) || 0)}
-                    className="h-7 text-xs"
-                    disabled={loading}
-                  />
+                  <Input value={row.description} onChange={(e) => updateRow(i, 'description', e.target.value)} className="h-7 text-xs" disabled={loading} />
                 </td>
                 <td className="px-2 py-1.5">
-                  <select
-                    value={row.transaction_type}
-                    onChange={(e) => updateRow(i, 'transaction_type', e.target.value)}
-                    className="h-7 text-xs rounded-md border border-input bg-background px-2 w-full"
-                    disabled={loading}
-                  >
+                  <Input value={row.holder_name ?? ''} onChange={(e) => updateRow(i, 'holder_name', e.target.value)} className="h-7 text-xs" disabled={loading} />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input value={row.account_number ?? ''} onChange={(e) => updateRow(i, 'account_number', e.target.value)} className="h-7 text-xs" disabled={loading} />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input value={row.beneficiary ?? ''} onChange={(e) => updateRow(i, 'beneficiary', e.target.value)} className="h-7 text-xs" disabled={loading} />
+                </td>
+                <td className="px-2 py-1.5">
+                  <Input type="number" step="0.01" min="0" value={row.amount} onChange={(e) => updateRow(i, 'amount', parseFloat(e.target.value) || 0)} className="h-7 text-xs" disabled={loading} />
+                </td>
+                <td className="px-2 py-1.5">
+                  <select value={row.transaction_type} onChange={(e) => updateRow(i, 'transaction_type', e.target.value)} className="h-7 text-xs rounded-md border border-input bg-background px-2 w-full" disabled={loading}>
                     <option value="debit">Débito</option>
                     <option value="credit">Crédito</option>
                   </select>
                 </td>
                 <td className="px-2 py-1.5 text-center">
-                  <button type="button" onClick={() => removeRow(i)} disabled={loading}
-                    className="text-muted-foreground hover:text-destructive">
+                  <button type="button" onClick={() => removeRow(i)} disabled={loading} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </td>

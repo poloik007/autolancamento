@@ -1,5 +1,5 @@
 export type UserRole = 'admin' | 'client'
-export type SubmissionStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'sent_to_tr' | 'tr_failed'
+export type SubmissionStatus = 'draft' | 'pending' | 'rejected' | 'sent_to_tr' | 'tr_failed'
 export type TransactionType = 'debit' | 'credit'
 export type NotificationType = 'submission_pending' | 'submission_rejected' | 'submission_approved' | 'submission_sent'
 export type PdfType = 'digital' | 'scanned'
@@ -13,6 +13,7 @@ export interface DbUser {
   role: UserRole
   is_active: boolean
   notes: string | null
+  telegram_chat_id: string | null
   created_at: string
   updated_at: string
 }
@@ -41,6 +42,7 @@ export interface DbSubmission {
   user_id: string
   company_id: string
   status: SubmissionStatus
+  source: 'web' | 'telegram'
   pdf_path: string
   pdf_filename: string
   pdf_type: PdfType | null
@@ -53,6 +55,15 @@ export interface DbSubmission {
   reviewed_by: string | null
   reviewed_at: string | null
   submitted_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DbTelegramSession {
+  id: string
+  chat_id: string
+  submission_id: string | null
+  state: 'awaiting_client_confirm' | 'awaiting_admin_action' | 'done'
   created_at: string
   updated_at: string
 }
@@ -70,6 +81,10 @@ export interface DbSubmissionTransaction {
   is_edited: boolean
   sort_order: number
   created_at: string
+  holder_name: string | null
+  account_number: string | null
+  beneficiary: string | null
+  transaction_time: string | null
 }
 
 export interface DbNotification {

@@ -29,11 +29,8 @@ export function useNotifications() {
     // Realtime subscription
     const channel = supabase
       .channel('notifications')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
-        () => fetchUnread()
-      )
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => fetchUnread())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications' }, () => fetchUnread())
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }

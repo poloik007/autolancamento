@@ -87,8 +87,16 @@ export default function UploadPage() {
     }
   }
 
+  function handleReset() {
+    setStep('select')
+    setSubmissionId(null)
+    setTransactions([])
+    setWarnings([])
+    setRows([])
+  }
+
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-5xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Novo upload</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -123,7 +131,17 @@ export default function UploadPage() {
 
       {(step === 'review' || step === 'submitting') && (
         <div className="space-y-2">
-          <label className="text-sm font-medium">Verifique os dados extraídos</label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Verifique os dados extraídos</label>
+            {step === 'review' && (
+              <button
+                onClick={handleReset}
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                Fazer novo upload
+              </button>
+            )}
+          </div>
           <ExtractionReview
             transactions={transactions}
             warnings={warnings}

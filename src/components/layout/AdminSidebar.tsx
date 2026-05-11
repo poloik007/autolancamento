@@ -26,22 +26,31 @@ export function AdminSidebar({ userName }: { userName?: string | null }) {
   }
 
   return (
-    <aside className="w-56 shrink-0 flex flex-col h-screen sticky top-0 border-r bg-white">
-      <div className="px-4 py-4 border-b">
-        <p className="font-semibold text-sm tracking-tight">AutoLançamento</p>
-        <p className="text-xs text-muted-foreground mt-0.5">Admin</p>
+    <aside className="w-60 shrink-0 flex flex-col h-screen sticky top-0 bg-sidebar">
+      {/* Logo */}
+      <div className="px-5 py-5 border-b border-sidebar-border">
+        <Link href="/admin/dashboard" className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0"
+               style={{ background: 'linear-gradient(135deg, oklch(0.72 0.18 200), oklch(0.55 0.22 258))' }}>
+            <span className="font-bold text-sm text-white">A</span>
+          </div>
+          <span className="font-semibold text-sm text-sidebar-accent-foreground">
+            AutoLançamento
+          </span>
+        </Link>
       </div>
 
-      <nav className="flex-1 px-2 py-4 space-y-0.5">
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-5 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon, badge }) => (
           <Link
             key={href}
             href={href}
             className={cn(
-              'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150',
               pathname.startsWith(href)
-                ? 'bg-gray-100 font-medium text-gray-900'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                ? 'text-sidebar-primary font-medium bg-sidebar-accent'
+                : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/60'
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -51,13 +60,14 @@ export function AdminSidebar({ userName }: { userName?: string | null }) {
         ))}
       </nav>
 
-      <div className="px-3 py-4 border-t space-y-1">
+      {/* User / logout */}
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
         {userName && (
-          <p className="px-3 text-xs text-muted-foreground truncate">{userName}</p>
+          <p className="px-3 text-xs text-sidebar-foreground/50 truncate mb-2">{userName}</p>
         )}
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-2.5 px-3 py-2 rounded-md text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+          className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 transition-all duration-150"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sair

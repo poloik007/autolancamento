@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { SubmissionStatusBadge } from '@/components/submissions/SubmissionStatusBadge'
 import { formatDateTime } from '@/lib/utils/format'
 import { FileText } from 'lucide-react'
@@ -10,22 +10,21 @@ export default async function AdminHistoryPage({
   searchParams: Promise<{ status?: string; page?: string }>
 }) {
   const sp = await searchParams
-  const supabase = await createClient()
+  const admin = createAdminClient()
   const page = Math.max(1, parseInt(sp.page ?? '1'))
   const pageSize = 50
   const offset = (page - 1) * pageSize
 
-  let query = supabase
+  let query = admin
     .from('submissions')
-    .select('*, companies(name), users(full_name, email)', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + pageSize - 1)
-
+    .select('*, companies(name), users!submissions_user_id_fkey(full_name, email)', { count: 'exact' })
   if (sp.status) query = query.eq('status', sp.status)
 
   const { data: submissions, count } = await query
+    .order('created_at', { ascending: false })
+    .range(offset, offset + pageSize - 1)
 
-  const statuses = ['pending', 'approved', 'rejected', 'sent_to_tr', 'tr_failed']
+  const statuses = ['pending', 'rejected', 'sent_to_tr', 'tr_failed']
   const totalPages = Math.ceil((count ?? 0) / pageSize)
 
   return (

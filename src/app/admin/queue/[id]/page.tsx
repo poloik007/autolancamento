@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminReviewPanel } from '@/components/submissions/AdminReviewPanel'
+import { ResendToTRButton } from '@/components/submissions/ResendToTRButton'
 import { SubmissionStatusBadge } from '@/components/submissions/SubmissionStatusBadge'
 import { formatDateTime } from '@/lib/utils/format'
 import { ChevronLeft } from 'lucide-react'
@@ -13,21 +14,30 @@ export default async function ReviewSubmissionPage({ params }: { params: Promise
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: submission } = await supabase
+  const admin = createAdminClient()
+
+  const { data: submission } = await admin
     .from('submissions')
-    .select('*, companies(name, tr_company_id), users(full_name, email)')
+    .select('*, companies(name, tr_company_id), users!submissions_user_id_fkey(full_name, email)')
     .eq('id', id)
     .single()
 
   if (!submission) notFound()
 
-  const { data: transactions } = await supabase
+  // Mark related pending notification as read when admin opens the submission
+  await admin
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('submission_id', id)
+    .eq('user_id', user.id)
+    .eq('is_read', false)
+
+  const { data: transactions } = await admin
     .from('submission_transactions')
     .select('*')
     .eq('submission_id', id)
     .order('sort_order')
 
-  const admin = createAdminClient()
   const { data: signedUrl } = await admin.storage
     .from('submissions')
     .createSignedUrl(submission.pdf_path, 3600)
@@ -70,9 +80,18 @@ export default async function ReviewSubmissionPage({ params }: { params: Promise
               submissionId={id}
               initialTransactions={transactions ?? []}
             />
+          ) : submission.status === 'tr_failed' ? (
+            <div className="rounded-lg border bg-amber-50 border-amber-200 p-4 space-y-3">
+              <p className="text-sm font-medium text-amber-800">Falha ao enviar ao Thomson Reuters</p>
+              <p className="text-xs text-amber-700">
+                A submissão foi aprovada mas o envio ao TR falhou. As transações já estão salvas.
+                Você pode tentar reenviar.
+              </p>
+              <ResendToTRButton submissionId={id} />
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Esta submissão já foi {submission.status === 'approved' || submission.status === 'sent_to_tr' ? 'aprovada' : 'processada'}.
+              {submission.status === 'sent_to_tr' ? 'Aprovada e enviada ao TR.' : 'Rejeitada.'}
             </p>
           )}
         </div>

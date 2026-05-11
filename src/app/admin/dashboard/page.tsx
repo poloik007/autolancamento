@@ -31,10 +31,10 @@ export default async function AdminDashboardPage() {
           <Link
             key={label}
             href={href}
-            className="rounded-lg border bg-white p-5 hover:shadow-sm transition-shadow group"
+            className="rounded-xl border border-border/60 bg-card p-5 hover:border-primary/30 hover:bg-card/80 transition-all duration-200 group"
           >
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className={`text-3xl font-bold mt-1 ${highlight && value > 0 ? 'text-red-600' : ''}`}>
+            <p className={`text-3xl font-semibold mt-1.5 ${highlight && value > 0 ? 'text-destructive' : 'text-foreground'}`}>
               {value}
             </p>
             <span className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-2">
@@ -45,8 +45,8 @@ export default async function AdminDashboardPage() {
       </div>
 
       {(pending ?? 0) > 0 && (
-        <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 flex items-center justify-between">
-          <p className="text-sm font-medium text-orange-800">
+        <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 flex items-center justify-between">
+          <p className="text-sm font-medium text-accent">
             {pending} submissão(ões) aguardando sua revisão
           </p>
           <Link href="/admin/queue" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}>

@@ -28,7 +28,7 @@ export async function POST(
   const admin = createAdminClient()
   const { data: submission } = await admin
     .from('submissions')
-    .select('*, users(email)')
+    .select('*, users!submissions_user_id_fkey(email)')
     .eq('id', id)
     .single()
 

@@ -33,6 +33,9 @@ create policy "users_update_admin" on public.users
     exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin')
   );
 
+create policy "users_insert_service" on public.users
+  for insert with check (true);
+
 -- ============================================================
 -- COMPANIES (espelho do TR Domínio Web)
 -- ============================================================
@@ -45,23 +48,6 @@ create table public.companies (
   synced_at      timestamptz not null default now(),
   created_at     timestamptz not null default now()
 );
-
-alter table public.companies enable row level security;
-
-create policy "companies_all_admin" on public.companies
-  for all using (
-    exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin')
-  );
-
-create policy "companies_select_client" on public.companies
-  for select using (
-    exists (
-      select 1 from public.client_company_access cca
-      where cca.company_id = id
-        and cca.user_id = auth.uid()
-        and cca.is_active = true
-    )
-  );
 
 -- ============================================================
 -- CLIENT_COMPANY_ACCESS

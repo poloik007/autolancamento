@@ -8,16 +8,21 @@ export default function LoginPage({
   searchParams: Promise<{ error?: string }>
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm space-y-8 p-8 bg-white rounded-2xl shadow-sm border">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">AutoLançamento</h1>
-          <p className="text-sm text-muted-foreground">
-            Portal de lançamentos contábeis
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="w-full max-w-sm mx-4">
+        <div className="bg-card rounded-xl border border-border shadow-sm p-8 space-y-6">
+          <div className="text-center space-y-1.5">
+            <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+              <span className="font-bold text-lg text-primary">A</span>
+            </div>
+            <h1 className="text-xl font-semibold text-foreground">AutoLançamento</h1>
+            <p className="text-sm text-muted-foreground">Portal de lançamentos contábeis</p>
+          </div>
+
+          <GoogleLoginButton />
+
+          <ErrorMessage searchParams={searchParams} />
         </div>
-        <GoogleLoginButton />
-        <ErrorMessage searchParams={searchParams} />
       </div>
     </div>
   )

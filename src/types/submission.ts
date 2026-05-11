@@ -8,6 +8,11 @@ export interface StandardTransaction {
   balance?: number
   documentNumber?: string
   rawText: string
+  // campos extras (comprovantes BRB e similares)
+  holderName?: string
+  accountNumber?: string
+  beneficiary?: string
+  transactionTime?: string
 }
 
 export interface ExtractionWarning {

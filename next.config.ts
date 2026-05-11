@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   turbopack: {},
-  serverExternalPackages: ['pdf-parse', '@google-cloud/vision'],
+  serverExternalPackages: ['@google/generative-ai'],
 }
 
 export default nextConfig

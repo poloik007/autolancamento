@@ -31,6 +31,7 @@ export async function GET(request: Request) {
       full_name: user.user_metadata?.full_name ?? null,
       avatar_url: user.user_metadata?.avatar_url ?? null,
       role,
+      is_active: true,
     },
     { onConflict: 'id', ignoreDuplicates: false }
   )
