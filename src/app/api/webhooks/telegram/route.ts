@@ -9,10 +9,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // Acknowledge immediately — Telegram expects a fast 200 response
-  handleTelegramUpdate(update).catch((err) =>
+  try {
+    await handleTelegramUpdate(update)
+  } catch (err) {
     console.error('[telegram-webhook] unhandled error:', err)
-  )
+  }
 
   return NextResponse.json({ ok: true })
 }
