@@ -41,10 +41,10 @@ function isValidDate(d: string): boolean {
 }
 
 async function extractPdfText(pdfBuffer: Buffer): Promise<string> {
-  const { PDFParse } = await import('pdf-parse')
-  const parser = new PDFParse({ data: pdfBuffer })
-  const result = await parser.getText()
-  return result.text
+  // Import from lib path to avoid pdf-parse v1 reading test files on require
+  const { default: pdfParse } = await import('pdf-parse/lib/pdf-parse.js')
+  const data = await pdfParse(pdfBuffer)
+  return data.text
 }
 
 export async function extractWithGroq(pdfBuffer: Buffer): Promise<ExtractionResult> {
