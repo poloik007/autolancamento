@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendTelegram, sendAdminTelegram, downloadTelegramFile } from '@/lib/notifications/telegram'
 import { createNotification } from '@/lib/notifications/create'
-import { extractWithOpenRouter } from '@/lib/pdf/extractor-openrouter'
+import { extractWithGroq } from '@/lib/pdf/extractor-groq'
 import { getTRClient } from '@/lib/thomson-reuters/client'
 import { getActiveSession, upsertSession, updateSessionState } from './session'
 
@@ -154,7 +154,7 @@ async function handleDocument(chatId: string, doc: { file_id: string; file_name?
     return
   }
 
-  const { transactions, warnings } = await extractWithOpenRouter(pdfBuffer)
+  const { transactions, warnings } = await extractWithGroq(pdfBuffer)
 
   if (transactions.length === 0) {
     const warningMsg = (warnings[0]?.message ?? 'Nenhuma transação encontrada.').replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&')

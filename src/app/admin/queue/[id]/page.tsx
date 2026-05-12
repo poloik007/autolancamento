@@ -6,7 +6,7 @@ import { AdminReviewPanel } from '@/components/submissions/AdminReviewPanel'
 import { ResendToTRButton } from '@/components/submissions/ResendToTRButton'
 import { SubmissionStatusBadge } from '@/components/submissions/SubmissionStatusBadge'
 import { formatDateTime } from '@/lib/utils/format'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Download } from 'lucide-react'
 
 export default async function ReviewSubmissionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -59,6 +59,14 @@ export default async function ReviewSubmissionPage({ params }: { params: Promise
           </p>
         </div>
         <SubmissionStatusBadge status={submission.status} />
+        <a
+          href={`/api/submissions/${id}/export-ofx`}
+          download
+          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border hover:bg-gray-50 transition-colors"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Exportar OFX
+        </a>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

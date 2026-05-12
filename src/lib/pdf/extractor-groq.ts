@@ -1,3 +1,4 @@
+import Groq from 'groq-sdk'
 import type { ExtractionResult, ExtractionWarning } from '@/types/submission'
 
 const PROMPT = `You are extracting bank transaction data from a Brazilian bank statement (extrato bancário or comprovante de pagamento).
@@ -39,64 +40,56 @@ function isValidDate(d: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d))
 }
 
-export async function extractWithOpenRouter(pdfBuffer: Buffer): Promise<ExtractionResult> {
+async function extractPdfText(pdfBuffer: Buffer): Promise<string> {
+  const { PDFParse } = await import('pdf-parse')
+  const parser = new PDFParse({ data: pdfBuffer })
+  const result = await parser.getText()
+  return result.text
+}
+
+export async function extractWithGroq(pdfBuffer: Buffer): Promise<ExtractionResult> {
   const warnings: ExtractionWarning[] = []
 
-  const apiKey = process.env.OPENROUTER_API_KEY
+  const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'OPENROUTER_API_KEY não configurado.' })
+    warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'GROQ_API_KEY não configurado.' })
+    return { transactions: [], warnings, pdfType: 'digital' }
+  }
+
+  let text: string
+  try {
+    text = await extractPdfText(pdfBuffer)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erro ao extrair texto do PDF.'
+    warnings.push({ pageNumber: 0, type: 'parse_failed', message })
+    return { transactions: [], warnings, pdfType: 'digital' }
+  }
+
+  if (!text.trim()) {
+    warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'PDF não contém texto extraível.' })
     return { transactions: [], warnings, pdfType: 'digital' }
   }
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemma-4-31b-it:free',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: PROMPT },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${pdfBuffer.toString('base64')}`,
-                },
-              },
-            ],
-          },
-        ],
-      }),
+    const groq = new Groq({ apiKey })
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'user',
+          content: `${PROMPT}\n\n---EXTRATO---\n${text.slice(0, 8000)}`,
+        },
+      ],
+      response_format: { type: 'json_object' },
     })
 
-    if (!response.ok) {
-      const err = await response.text()
-      warnings.push({ pageNumber: 0, type: 'parse_failed', message: `OpenRouter error ${response.status}: ${err.slice(0, 200)}` })
-      return { transactions: [], warnings, pdfType: 'digital' }
-    }
-
-    const data = await response.json() as {
-      choices: { message: { content: string } }[]
-    }
-
-    const raw = data.choices[0]?.message?.content ?? ''
-
-    const jsonMatch = raw.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'Modelo não retornou JSON válido.', rawText: raw.slice(0, 200) })
-      return { transactions: [], warnings, pdfType: 'digital' }
-    }
+    const raw = completion.choices[0]?.message?.content ?? ''
 
     let parsed: { transactions: RawTransaction[] }
     try {
-      parsed = JSON.parse(jsonMatch[0])
+      parsed = JSON.parse(raw)
     } catch {
-      warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'JSON inválido na resposta do modelo.', rawText: raw.slice(0, 200) })
+      warnings.push({ pageNumber: 0, type: 'parse_failed', message: 'Groq retornou JSON inválido.', rawText: raw.slice(0, 200) })
       return { transactions: [], warnings, pdfType: 'digital' }
     }
 
@@ -122,7 +115,7 @@ export async function extractWithOpenRouter(pdfBuffer: Buffer): Promise<Extracti
 
     return { transactions, warnings, pdfType: 'digital' }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Erro desconhecido ao chamar OpenRouter.'
+    const message = err instanceof Error ? err.message : 'Erro ao chamar Groq.'
     warnings.push({ pageNumber: 0, type: 'parse_failed', message })
     return { transactions: [], warnings, pdfType: 'digital' }
   }
